@@ -5,7 +5,10 @@
   "author": "Alex Kern <alex@cleargraph.com>",
   "license": "MIT",
   "scripts": {
-    "test": "truffle test"
+    "start": "truffle develop",
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate"
   },
   "dependencies": {
     "openzeppelin-solidity": "1.9.0",

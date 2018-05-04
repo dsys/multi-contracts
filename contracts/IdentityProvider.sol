@@ -10,7 +10,7 @@ import "./registries/IdentityRegistry.sol";
 interface IdentityProvider {
 
   event IdentityRegistered(address addr);
-  event IdentityDeregistered(address addr);
+  event IdentityUnregistered(address addr);
 
   /**
     * @dev Registers the message's sender with the IdentityProvider.
@@ -23,6 +23,16 @@ interface IdentityProvider {
     * @dev Other possible names: erase, delete, deregister, forget.
     */
   function unregister() external returns (uint256);
+
+  /**
+   * @dev Checks if the message sender is registered.
+   */
+  function isRegisteredSelf() external view returns (bool);
+
+  /**
+   * @dev Checks if a user is registered/
+   */
+  function isRegistered(address _subject) external view returns (bool);
 
   /**
     * @dev Performs discovery of an identity registry.
