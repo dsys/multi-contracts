@@ -1,38 +1,39 @@
+pragma solidity ^0.4.23;
+
+import './IdentityProviderPolicy.sol';
+import '../registries/IntegerValueIdentityRegistry.sol';
+
 contract MaximumTransferPolicy is IdentityProviderPolicy {
 
-  string registry;
+  string registryId;
 
-  function MaximumTransferPolicy(IdentityProvider _provider) {
-    MaximumTransferPolicy(_provider, "token.max");
+  constructor(IdentityProvider _provider) public {
+    IdentityProviderPolicy(_provider);
+    registryId = "token.max";
   }
 
-  function MaximumTransferPolicy(IdentityProvider _provider, string _registry) {
-    super(_provider);
-    registry = _registry;
-  }
-
-  function setRegistry(string _registry) onlyOwner external {
-    registry = _registry;
+  function setRegistryId(string _registryId) onlyOwner external {
+    registryId = _registryId;
   }
 
   function check(
-    address _token,
-    address _subject
-  ) external returns (byte result) {
+    address,
+    address
+  ) external view returns (byte result) {
     return 0;
   }
 
   function check(
-    address _token,
+    address,
     address _from,
     address _to,
     uint256 _amount
-  ) public returns (byte result) {
+  ) external view returns (byte result) {
     // TODO: Cruft, should be in a library of some kind.
-    IntegerValueIdentityRegistry registry = IntegerValueIdentityRegistry(provider.discover(registry, IntegerValueIdentityRegistry.getValue.selector));
-    if (amount > registry.getValue(_from)) {
+    IntegerValueIdentityRegistry registry = IntegerValueIdentityRegistry(provider.discover(registryId));
+    if (_amount > registry.getValue(_from)) {
       return 1;
-    } else if (amount > registry.getValue(_to)) {
+    } else if (_amount > registry.getValue(_to)) {
       return 2;
     } else {
       return 0;

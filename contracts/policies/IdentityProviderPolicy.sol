@@ -1,8 +1,14 @@
+pragma solidity ^0.4.23;
+
+import '../IdentityProvider.sol';
+import '../Ownable.sol';
+import './ERC902.sol';
+
 contract IdentityProviderPolicy is Ownable, ERC902 {
 
   IdentityProvider provider;
 
-  function IdentityProviderPolicy(IdentityProvider _provider) {
+  constructor(IdentityProvider _provider) public {
     provider = _provider;
   }
 

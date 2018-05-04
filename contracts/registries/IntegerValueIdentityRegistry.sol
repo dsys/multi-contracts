@@ -1,8 +1,8 @@
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+pragma solidity ^0.4.23;
 
-import './IdentityRegistry.sol'
+import './IdentityRegistry.sol';
 
-contract IntegerValueIdentityRegistry is IdentityRegistry, Ownable {
+contract IntegerValueIdentityRegistry is IdentityRegistry {
 
   mapping(address => uint256) claims;
 

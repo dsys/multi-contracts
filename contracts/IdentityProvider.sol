@@ -1,4 +1,7 @@
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+pragma solidity ^0.4.23;
+
+import "./Ownable.sol";
+import "./registries/IdentityRegistry.sol";
 
 /**
  * @title IdentityProvider
@@ -25,12 +28,12 @@ interface IdentityProvider {
     * @dev Performs discovery of an identity registry.
     * @dev Enables federation of identity providers.
     */
-  function discover(string _registry) external returns (IdentityRegistry);
+  function discover(string _registryType) external view returns (IdentityRegistry);
 
   /**
     * @dev Performs discovery of an identity registry that satisfies an Ethereum interface.
     * @dev Enables federation of identity providers.
     */
-  function discover(string _registry, bytes4 _interfaceId) external view returns (IdentityRegistry);
+  function discover(string _registryType, bytes4 _interfaceId) external view returns (IdentityRegistry);
 
 }

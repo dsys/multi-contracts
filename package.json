@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Alex Kern <alex@cleargraph.com>",
   "license": "MIT",
+  "scripts": {
+    "test": "truffle test"
+  },
   "dependencies": {
     "openzeppelin-solidity": "1.9.0",
     "truffle": "^4.1.8"

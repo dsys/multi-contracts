@@ -1,4 +1,6 @@
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721.sol';
+pragma solidity ^0.4.23;
+
+import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
 contract IdentityToken is ERC20 {
 

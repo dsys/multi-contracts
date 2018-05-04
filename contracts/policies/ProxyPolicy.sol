@@ -1,8 +1,13 @@
+pragma solidity ^0.4.23;
+
+import "../Ownable.sol";
+import "./ERC902.sol";
+
 contract ProxyPolicy is Ownable, ERC902 {
 
   ERC902 delegate;
 
-  function PolicyProxy(ERC902 _delegate) {
+  constructor(ERC902 _delegate) public {
     delegate = _delegate;
   }
 
