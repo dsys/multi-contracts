@@ -1,49 +1,50 @@
 pragma solidity ^0.4.23;
 
 import "./Ownable.sol";
+import "./Service.sol";
+import "./ServiceDiscovery.sol";
 import "./registries/IdentityRegistry.sol";
 
 /**
  * @title IdentityProvider
  * @dev The IdentityProvider contract allows addresses to register or deregister with an off-chain identity provider.
  */
-interface IdentityProvider {
+contract IdentityProvider is Service, ServiceDiscovery {
 
-  event IdentityRegistered(address addr);
-  event IdentityUnregistered(address addr);
+    event IdentityRegistered(
+      address addr,
+      bytes32 data,
+      uint registeredAt);
 
-  /**
+    event IdentityUnregistered(
+      address addr,
+      uint unregisteredAt);
+
+    /**
     * @dev Registers the message's sender with the IdentityProvider.
     * @dev The identity provider may use _data to connect the request to an off-chain user account.
     */
-  function register(bytes32 _data) external returns (uint256);
+    function register(bytes32 _data) external returns (uint256);
 
-  /**
+    /**
     * @dev Deregisters the message's sender with the IdentityProvider.
     * @dev Other possible names: erase, delete, deregister, forget.
     */
-  function unregister() external returns (uint256);
+    function unregister() external returns (uint256);
 
-  /**
-   * @dev Checks if the message sender is registered.
-   */
-  function isRegisteredSelf() external view returns (bool);
-
-  /**
-   * @dev Checks if a user is registered/
-   */
-  function isRegistered(address _subject) external view returns (bool);
-
-  /**
-    * @dev Performs discovery of an identity registry.
-    * @dev Enables federation of identity providers.
+    /**
+    * @dev Checks if a user is registered/
     */
-  function discover(string _registryType) external view returns (IdentityRegistry);
+    function isRegistered(address _subject) external view returns (bool);
 
-  /**
-    * @dev Performs discovery of an identity registry that satisfies an Ethereum interface.
-    * @dev Enables federation of identity providers.
+    /**
+    * @dev Checks if the message sender is registered.
     */
-  function discover(string _registryType, bytes4 _interfaceId) external view returns (IdentityRegistry);
+    function isRegisteredSelf() external view returns (bool);
+
+    /**
+    * @dev Checks if the message sender is registered.
+    */
+    function isRegisteredMany(address[] _subjects) external view returns (bool);
 
 }

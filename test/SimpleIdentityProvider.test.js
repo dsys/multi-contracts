@@ -34,4 +34,32 @@ contract('SimpleIdentityProvider', async (accounts) => {
     assert.isFalse(result.valueOf())
   })
 
+  it("supports multiple user registration", async () => {
+    const instance = await SimpleIdentityProvider.deployed();
+
+    let result = await instance.isRegisteredMany.call([accounts[0], accounts[1]]);
+    assert.isFalse(result.valueOf())
+
+    result = await instance.register("", { from: accounts[0] });
+
+    result = await instance.isRegisteredMany.call([accounts[0], accounts[1]])
+    assert.isFalse(result.valueOf())
+
+    result = await instance.register("", { from: accounts[1] });
+
+    result = await instance.isRegisteredMany.call([accounts[0], accounts[1]])
+    assert.isTrue(result.valueOf())
+
+    result = await instance.unregister({ from: accounts[0] })
+
+    result = await instance.isRegisteredMany.call([accounts[0], accounts[1]])
+    assert.isFalse(result.valueOf())
+
+    result = await instance.isRegistered.call(accounts[0])
+    assert.isFalse(result.valueOf())
+
+    result = await instance.isRegistered.call(accounts[1])
+    assert.isTrue(result.valueOf())
+  })
+
 })

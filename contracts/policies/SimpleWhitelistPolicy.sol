@@ -4,43 +4,26 @@ import "./IdentityProviderPolicy.sol";
 
 contract SimpleWhitelistPolicy is IdentityProviderPolicy {
 
-  string registryType;
-
-  constructor(IdentityProvider _provider) public {
-    IdentityProviderPolicy(_provider);
-    registryType = "token.whitelist";
-  }
-
-  function setRegistryType(string _registryType) onlyOwner external {
-    registryType = _registryType;
-  }
-
-  function check(
-    address,
-    address _subject
-  ) external view returns (byte result) {
-    IdentityRegistry registry = provider.discover(registryType);
-    if (registry.isPresent(_subject)) {
-      return 0;
-    } else {
-      return 1;
+    constructor(IdentityProvider _provider) IdentityProviderPolicy(_provider) public {
     }
-  }
 
-  function check(
-    address,
-    address _from,
-    address _to,
-    uint256
-  ) external view returns (byte result) {
-    IdentityRegistry registry = provider.discover(registryType);
-    if (!registry.isPresent(_from)) {
-      return 1;
-    } else if (!registry.isPresent(_to)) {
-      return 2;
-    } else {
-      return 0;
+    function check(
+      address,
+      address _subject
+    ) external view returns (byte) {
+      return provider.isRegistered(_subject) ? byte(0) : byte(1);
     }
-  }
+
+    function check(
+      address,
+      address _from,
+      address _to,
+      uint256
+    ) external view returns (byte) {
+      address[] memory subjects = new address[](2);
+      subjects[0] = _from;
+      subjects[1] = _to;
+      return provider.isRegisteredMany(subjects) ? byte(0) : byte(1);
+    }
 
 }

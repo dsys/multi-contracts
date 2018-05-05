@@ -6,14 +6,14 @@ import './ERC902.sol';
 
 contract IdentityProviderPolicy is Ownable, ERC902 {
 
-  IdentityProvider provider;
+    IdentityProvider provider;
 
-  constructor(IdentityProvider _provider) public {
-    provider = _provider;
-  }
+    constructor(IdentityProvider _provider) Ownable() public {
+      provider = _provider;
+    }
 
-  function setIdentityProvider(IdentityProvider _provider) onlyOwner external {
-    provider = _provider;
-  }
+    function setIdentityProvider(IdentityProvider _provider) onlyOwner external {
+      provider = _provider;
+    }
 
 }
