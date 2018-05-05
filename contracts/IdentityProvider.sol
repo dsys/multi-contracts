@@ -1,9 +1,7 @@
 pragma solidity ^0.4.23;
 
-import "./Ownable.sol";
 import "./Service.sol";
 import "./ServiceDiscovery.sol";
-import "./registries/IdentityRegistry.sol";
 
 /**
  * @title IdentityProvider
