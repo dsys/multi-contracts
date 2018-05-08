@@ -30,11 +30,15 @@ contract SimpleIdentityProvider is IdentityProvider {
         return 0;
     }
 
+    function isRegistered() external view returns (bool) {
+        return registered[msg.sender];
+    }
+
     function isRegistered(address _subject) external view returns (bool) {
         return registered[_subject];
     }
 
-    function isRegisteredMany(address[] _subjects) external view returns (bool) {
+    function isRegistered(address[] _subjects) external view returns (bool) {
         for (uint i = 0; i < _subjects.length; i++) {
             if (!registered[_subjects[i]]) {
                 return false;
@@ -42,10 +46,6 @@ contract SimpleIdentityProvider is IdentityProvider {
         }
 
         return true;
-    }
-
-    function isRegisteredSelf() external view returns (bool) {
-        return registered[msg.sender];
     }
 
     function discover(string) external view returns (Service) {

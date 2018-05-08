@@ -51,7 +51,7 @@ contract VerifiedIdentityProvider is IdentityProvider, Ownable {
         return registered[_subject];
     }
 
-    function isRegisteredMany(address[] _subjects) external view returns (bool) {
+    function isRegistered(address[] _subjects) external view returns (bool) {
         for (uint i = 0; i < _subjects.length; i++) {
             if (!registered[_subjects[i]]) {
                 return false;

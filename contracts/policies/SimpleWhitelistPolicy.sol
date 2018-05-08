@@ -23,7 +23,7 @@ contract SimpleWhitelistPolicy is IdentityProviderPolicy {
       address[] memory subjects = new address[](2);
       subjects[0] = _from;
       subjects[1] = _to;
-      return provider.isRegisteredMany(subjects) ? byte(0) : byte(1);
+      return provider.isRegistered(subjects) ? byte(0) : byte(1);
     }
 
 }

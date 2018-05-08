@@ -31,18 +31,18 @@ contract IdentityProvider is Service, ServiceDiscovery {
     function deregister() external returns (uint256);
 
     /**
-    * @dev Checks if a user is registered/
+    * @dev Checks if the message sender is registered.
+    */
+    function isRegistered() external view returns (bool);
+
+    /**
+    * @dev Checks if a user is registered.
     */
     function isRegistered(address _subject) external view returns (bool);
 
     /**
-    * @dev Checks if the message sender is registered.
+    * @dev Checks if a list of users are registered.
     */
-    function isRegisteredSelf() external view returns (bool);
-
-    /**
-    * @dev Checks if the message sender is registered.
-    */
-    function isRegisteredMany(address[] _subjects) external view returns (bool);
+    function isRegistered(address[] _subjects) external view returns (bool);
 
 }
