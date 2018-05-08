@@ -16,3 +16,8 @@ The proposed implementation supports any address-based identity system, such as 
 
     $ yarn test
     $ yarn run watch # requires watchman: brew install watchman
+
+### Static analysis with Mythril
+
+    $ make install-mythril
+    $ make myth
