@@ -14,9 +14,9 @@ contract IdentityProvider is Service, ServiceDiscovery {
       bytes32 data,
       uint registeredAt);
 
-    event IdentityUnregistered(
+    event IdentityDeregistered(
       address addr,
-      uint unregisteredAt);
+      uint deregisteredAt);
 
     /**
     * @dev Registers the message's sender with the IdentityProvider.
@@ -28,7 +28,7 @@ contract IdentityProvider is Service, ServiceDiscovery {
     * @dev Deregisters the message's sender with the IdentityProvider.
     * @dev Other possible names: erase, delete, deregister, forget.
     */
-    function unregister() external returns (uint256);
+    function deregister() external returns (uint256);
 
     /**
     * @dev Checks if a user is registered/

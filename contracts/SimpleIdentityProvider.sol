@@ -24,9 +24,9 @@ contract SimpleIdentityProvider is IdentityProvider {
         return 0;
     }
 
-    function unregister() external returns (uint256) {
+    function deregister() external returns (uint256) {
         registered[msg.sender] = false;
-        emit IdentityUnregistered(msg.sender, now);
+        emit IdentityDeregistered(msg.sender, now);
         return 0;
     }
 

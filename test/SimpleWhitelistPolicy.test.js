@@ -15,7 +15,7 @@ contract('SimpleWhitelistPolicy', async (accounts) => {
     result = await whitelist.contract.check["address,address"].call(0x0, accounts[1])
     assert.equal(result, '0x01')
 
-    await provider.unregister({ from: accounts[0] });
+    await provider.deregister({ from: accounts[0] });
 
     result = await whitelist.contract.check["address,address"].call(0x0, accounts[0])
     assert.equal(result, '0x01')
@@ -45,7 +45,7 @@ contract('SimpleWhitelistPolicy', async (accounts) => {
     result = await whitelist.contract.check["address,address,address,uint256"].call(0x0, accounts[1], accounts[0], 0)
     assert.equal(result, '0x00')
 
-    await provider.unregister({ from: accounts[0] });
+    await provider.deregister({ from: accounts[0] });
 
     result = await whitelist.contract.check["address,address,address,uint256"].call(0x0, accounts[0], accounts[1], 0)
     assert.equal(result, '0x01')

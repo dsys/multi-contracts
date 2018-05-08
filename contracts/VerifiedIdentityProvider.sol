@@ -41,9 +41,9 @@ contract VerifiedIdentityProvider is IdentityProvider, Ownable {
         emit IdentityRegistered(_subject, _data, now);
     }
 
-    function unregister() external returns (uint256) {
+    function deregister() external returns (uint256) {
         registered[msg.sender] = false;
-        emit IdentityUnregistered(msg.sender, now);
+        emit IdentityDeregistered(msg.sender, now);
         return 0;
     }
 
