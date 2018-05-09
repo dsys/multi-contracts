@@ -5,14 +5,9 @@ import "./IdentityProvider.sol";
 
 contract VerifiedIdentityProvider is IdentityProvider, Ownable {
 
-    event ServiceSet(
-        string indexed serviceType,
-        Service svc,
-        uint updatedAt);
+    event ServiceSet(string indexed serviceType, Service svc, uint updatedAt);
 
-    event ServiceDeleted(
-        string indexed _serviceType,
-        uint deletedAt);
+    event ServiceDeleted(string indexed _serviceType, uint deletedAt);
 
     mapping(address => bytes32) awaitingVerification;
     mapping(address => bool) registered;
@@ -38,12 +33,12 @@ contract VerifiedIdentityProvider is IdentityProvider, Ownable {
     function verify(address _subject, bytes32 _data) onlyOwner external {
         require(awaitingVerification[_subject] == _data);
         registered[_subject] = true;
-        emit IdentityRegistered(_subject, _data, now);
+        emit IdentityRegistered(_subject, _data, block.timestamp); // solium-disable-line security/no-block-members
     }
 
     function deregister() external returns (uint256) {
         registered[msg.sender] = false;
-        emit IdentityDeregistered(msg.sender, now);
+        emit IdentityDeregistered(msg.sender, block.timestamp); // solium-disable-line security/no-block-members
         return 0;
     }
 
@@ -67,12 +62,12 @@ contract VerifiedIdentityProvider is IdentityProvider, Ownable {
 
     function setService(string _serviceType, Service svc) onlyOwner external {
         services[_serviceType] = svc;
-        emit ServiceSet(_serviceType, svc, now);
+        emit ServiceSet(_serviceType, svc, block.timestamp); // solium-disable-line security/no-block-members
     }
 
     function deleteService(string _serviceType) onlyOwner external {
         delete services[_serviceType];
-        emit ServiceDeleted(_serviceType, now);
+        emit ServiceDeleted(_serviceType, block.timestamp); // solium-disable-line security/no-block-members
     }
 
     function discover(string _serviceType) external view returns (Service) {

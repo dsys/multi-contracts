@@ -20,13 +20,13 @@ contract SimpleIdentityProvider is IdentityProvider {
 
     function register(bytes32 _data) external returns (uint256) {
         registered[msg.sender] = true;
-        emit IdentityRegistered(msg.sender, _data, now);
+        emit IdentityRegistered(msg.sender, _data, block.timestamp); // solium-disable-line security/no-block-members
         return 0;
     }
 
     function deregister() external returns (uint256) {
         registered[msg.sender] = false;
-        emit IdentityDeregistered(msg.sender, now);
+        emit IdentityDeregistered(msg.sender, block.timestamp); // solium-disable-line security/no-block-members
         return 0;
     }
 

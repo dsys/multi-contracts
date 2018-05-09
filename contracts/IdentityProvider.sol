@@ -9,14 +9,9 @@ import "./ServiceDiscovery.sol";
  */
 contract IdentityProvider is Service, ServiceDiscovery {
 
-    event IdentityRegistered(
-      address addr,
-      bytes32 data,
-      uint registeredAt);
+    event IdentityRegistered(address addr, bytes32 data, uint registeredAt);
 
-    event IdentityDeregistered(
-      address addr,
-      uint deregisteredAt);
+    event IdentityDeregistered(address addr, uint deregisteredAt);
 
     /**
     * @dev Registers the message's sender with the IdentityProvider.

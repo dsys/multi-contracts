@@ -8,22 +8,22 @@ contract SimpleWhitelistPolicy is IdentityProviderPolicy {
     }
 
     function check(
-      address,
-      address _subject
+        address,
+        address _subject
     ) external view returns (byte) {
-      return provider.isRegistered(_subject) ? byte(0) : byte(1);
+        return provider.isRegistered(_subject) ? byte(0) : byte(1);
     }
 
     function check(
-      address,
-      address _from,
-      address _to,
-      uint256
+        address,
+        address _from,
+        address _to,
+        uint256
     ) external view returns (byte) {
-      address[] memory subjects = new address[](2);
-      subjects[0] = _from;
-      subjects[1] = _to;
-      return provider.isRegistered(subjects) ? byte(0) : byte(1);
+        address[] memory subjects = new address[](2);
+        subjects[0] = _from;
+        subjects[1] = _to;
+        return provider.isRegistered(subjects) ? byte(0) : byte(1);
     }
 
 }
