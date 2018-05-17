@@ -12,9 +12,9 @@ interface Service {
     function name() external view returns (string);
 
     /**
-     * @dev Returns the name of the service.
+     * @dev Returns whether or not a service interface is supported.
      */
-    function serviceType() external view returns (string);
+    function supportsInterface(string _interfaceName) external pure returns (bool);
 
     /**
      * @dev Returns metadata about the servicer in the form of a multiaddress.

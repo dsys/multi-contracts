@@ -17,8 +17,8 @@ contract VerifiedIdentityProvider is IdentityProvider, Ownable {
         return "VerifiedIdentityProvider";
     }
 
-    function serviceType() external view returns (string) {
-        return "com.cleargraph.VerifiedIdentityProvider";
+    function supportsInterface(string _interfaceName) external pure returns (bool) {
+        return keccak256(_interfaceName) == keccak256("com.cleargraph.VerifiedIdentityProvider");
     }
 
     function serviceMetadata() external view returns (string) {

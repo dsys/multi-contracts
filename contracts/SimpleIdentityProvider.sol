@@ -10,8 +10,8 @@ contract SimpleIdentityProvider is IdentityProvider {
         return "SimpleIdentityProvider";
     }
 
-    function serviceType() external view returns (string) {
-        return "com.cleargraph.IdentityProvider";
+    function supportsInterface(string interfaceName) external pure returns (bool) {
+        return keccak256(interfaceName) == keccak256("com.cleargraph.IdentityProvider");
     }
 
     function serviceMetadata() external view returns (string) {
