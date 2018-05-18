@@ -1,10 +1,10 @@
 pragma solidity ^0.4.23;
 
-import "../policies/ERC902.sol";
+import "../PolicyService.sol";
 
 contract PermissionedToken {
 
-    ERC902 policy;
+    PolicyService policy;
 
     modifier checkSender() {
         require(policy.check(this, msg.sender) == 0);

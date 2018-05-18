@@ -1,11 +1,13 @@
-const SimpleIdentityProvider = artifacts.require("SimpleIdentityProvider");
-const SimpleWhitelistPolicy = artifacts.require("SimpleWhitelistPolicy");
+const ServiceRegistry = artifacts.require("ServiceRegistry");
+const SimpleIdentityService = artifacts.require("SimpleIdentityService");
+const SimpleWhitelistPolicyService = artifacts.require("SimpleWhitelistPolicyService");
 
-contract('SimpleWhitelistPolicy', async (accounts) => {
+contract('SimpleWhitelistPolicyService', async (accounts) => {
 
   it("allows registered Ethereum addresses", async () => {
-    const provider = await SimpleIdentityProvider.deployed();
-    const whitelist = await SimpleWhitelistPolicy.new(provider.address);
+    const registry = await ServiceRegistry.deployed();
+    const provider = await SimpleIdentityService.new(registry.address);
+    const whitelist = await SimpleWhitelistPolicyService.new(provider.address);
 
     await provider.register("", { from: accounts[0] });
 
@@ -24,10 +26,10 @@ contract('SimpleWhitelistPolicy', async (accounts) => {
     assert.equal(result, '0x01')
   })
 
-
   it("allows registered pairs of Ethereum addresses", async () => {
-    const provider = await SimpleIdentityProvider.deployed();
-    const whitelist = await SimpleWhitelistPolicy.new(provider.address);
+    const registry = await ServiceRegistry.deployed();
+    const provider = await SimpleIdentityService.new(registry.address);
+    const whitelist = await SimpleWhitelistPolicyService.new(provider.address);
 
     await provider.register("", { from: accounts[0] });
 

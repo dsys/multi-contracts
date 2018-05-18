@@ -1,24 +1,29 @@
 pragma solidity ^0.4.23;
 
 import "./Ownable.sol";
-import "./IdentityProvider.sol";
+import "./IdentityService.sol";
 
-contract VerifiedIdentityProvider is IdentityProvider, Ownable {
+contract VerifiedIdentityService is IdentityService, Ownable {
 
-    event ServiceSet(string indexed serviceType, Service svc, uint updatedAt);
+    bytes32 constant InterfaceHash = keccak256("com.cleargraph.VerifiedIdentityService");
 
-    event ServiceDeleted(string indexed _serviceType, uint deletedAt);
+    event ServiceSet(string indexed _serviceType, Service _svc, uint _updatedAt);
+    event ServiceDeleted(string indexed _serviceType, uint _deletedAt);
 
     mapping(address => bytes32) awaitingVerification;
     mapping(address => bool) registered;
     mapping(string => Service) services;
 
     function name() external view returns (string) {
-        return "VerifiedIdentityProvider";
+        return "VerifiedIdentityService";
     }
 
-    function supportsInterface(string _interfaceName) external pure returns (bool) {
-        return keccak256(_interfaceName) == keccak256("com.cleargraph.VerifiedIdentityProvider");
+    function supportsInterface(bytes32 _interfaceHash) external view returns (bool) {
+        return
+            _interfaceHash == Service.InterfaceHash ||
+            // _interfaceHash == ServiceRegistry.InterfaceHash ||
+            _interfaceHash == IdentityService.InterfaceHash ||
+            _interfaceHash == VerifiedIdentityService.InterfaceHash;
     }
 
     function serviceMetadata() external view returns (string) {

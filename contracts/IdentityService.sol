@@ -4,23 +4,24 @@ import "./Service.sol";
 import "./ServiceDiscovery.sol";
 
 /**
- * @title IdentityProvider
- * @dev The IdentityProvider contract allows addresses to register or deregister with an off-chain identity provider.
+ * @title IdentityService
+ * @dev The IdentityService contract allows addresses to register or deregister with an off-chain identity provider.
  */
-contract IdentityProvider is Service, ServiceDiscovery {
+contract IdentityService is Service, ServiceDiscovery {
+
+    bytes32 constant InterfaceHash = keccak256("com.cleargraph.IdentityService");
 
     event IdentityRegistered(address addr, bytes32 data, uint registeredAt);
-
     event IdentityDeregistered(address addr, uint deregisteredAt);
 
     /**
-    * @dev Registers the message's sender with the IdentityProvider.
+    * @dev Registers the message's sender with the IdentityService.
     * @dev The identity provider may use _data to connect the request to an off-chain user account.
     */
     function register(bytes32 _data) external returns (uint256);
 
     /**
-    * @dev Deregisters the message's sender with the IdentityProvider.
+    * @dev Deregisters the message's sender with the IdentityService.
     * @dev Other possible names: erase, delete, deregister, forget.
     */
     function deregister() external returns (uint256);

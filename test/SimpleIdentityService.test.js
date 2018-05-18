@@ -1,9 +1,11 @@
-const SimpleIdentityProvider = artifacts.require("SimpleIdentityProvider");
+const ServiceRegistry = artifacts.require("ServiceRegistry");
+const SimpleIdentityService = artifacts.require("SimpleIdentityService");
 
-contract('SimpleIdentityProvider', async (accounts) => {
+contract('SimpleIdentityService', async (accounts) => {
 
   it("registers and deregister any Ethereum address", async () => {
-    const instance = await SimpleIdentityProvider.deployed();
+    const registry = await ServiceRegistry.deployed();
+    const instance = await SimpleIdentityService.new(registry.address);
 
     let result = await instance.contract.isRegistered[''].call({ from: accounts[0] })
     assert.isFalse(result.valueOf())
@@ -35,7 +37,8 @@ contract('SimpleIdentityProvider', async (accounts) => {
   })
 
   it("supports multiple user registration", async () => {
-    const instance = await SimpleIdentityProvider.deployed();
+    const registry = await ServiceRegistry.deployed();
+    const instance = await SimpleIdentityService.new(registry.address);
 
     let result = await instance.contract.isRegistered['address[]'].call([accounts[0], accounts[1]]);
     assert.isFalse(result.valueOf())
