@@ -10,8 +10,12 @@ contract MultiSigIdentity {
   event SignerAdded(address _signer, uint _addedAt);
   event SignerRemoved(address _signer, uint _addedAt);
 
+  mapping(address => bool) ownersMapping;
   address[] public owners;
+
+  mapping(address => bool) signersMapping;
   address[] public signers;
+
   uint256 public nonce;
 
   modifier onlyOwner() {
@@ -20,8 +24,7 @@ contract MultiSigIdentity {
   }
 
   constructor(address _owner) public {
-    owners.push(_owner);
-    signers.push(_owner);
+    _addOwner(_owner);
   }
 
   // Owner management
@@ -32,12 +35,7 @@ contract MultiSigIdentity {
   }
 
   function isOwner(address _address) public view returns (bool) {
-    for (uint8 i = 0; i < owners.length; i++) {
-      if (_address == owners[i]) {
-        return true;
-      }
-    }
-    return false;
+    return ownersMapping[_address];
   }
 
   function isOwnerSignature(bytes32 message, bytes sig) public view returns (bool) {
@@ -61,6 +59,7 @@ contract MultiSigIdentity {
 
   function _addOwner(address _address) internal {
     if (isOwner(_address)) return;
+    ownersMapping[_address] = true;
     owners.push(_address);
     emit OwnerAdded(_address, block.timestamp);
   }
@@ -80,6 +79,7 @@ contract MultiSigIdentity {
   }
 
   function _removeOwner(address _address) internal {
+    if (!isOwner(_address)) return;
     for (uint8 i = 0; i < owners.length; i++) {
       if (_address == owners[i]) {
         // don't allow removal of the last owner
@@ -91,6 +91,7 @@ contract MultiSigIdentity {
         }
         delete owners[owners.length - 1];
         owners.length--;
+        delete ownersMapping[_address];
 
         emit OwnerRemoved(_address, block.timestamp);
         return;
@@ -106,12 +107,7 @@ contract MultiSigIdentity {
   }
 
   function isSigner(address _address) public view returns (bool) {
-    for (uint8 i = 0; i < signers.length; i++) {
-      if (_address == signers[i]) {
-        return true;
-      }
-    }
-    return false;
+    return signersMapping[_address];
   }
 
   function isSignerSignature(bytes32 message, bytes sig) public view returns (bool) {
@@ -119,24 +115,57 @@ contract MultiSigIdentity {
     return isSigner(ECRecovery.recover(hash, sig));
   }
 
-  function addSigner(address _signer) onlyOwner external {
-    emit SignerAdded(_signer, block.timestamp);
+  function addSigner(address _address) onlyOwner external {
+    _addSigner(_address);
   }
 
-  function addSignerSigned(address _signer, bytes sig) external {
-    bytes32 message = keccak256(byte(0x19), byte(0), this, nonce, "addSigner", _signer);
+  function addSignerSigned(address _address, bytes sig) external {
+    bytes32 message = getAddOwnerSignedMessage(_address);
     require(isOwnerSignature(message, sig));
-    emit SignerAdded(_signer, block.timestamp);
+    _addSigner(_address);
   }
 
-  function removeSigner(address _signer) onlyOwner external {
-    emit SignerRemoved(_signer, block.timestamp);
+  function getAddSignerSignedMessage(address _address) public view returns (bytes32) {
+    return keccak256(byte(0x19), byte(0), this, nonce, "addSigner", _address);
   }
 
-  function removeSignerSigned(address _signer, bytes sig) external {
-    bytes32 message = keccak256(byte(0x19), byte(0), this, nonce, "removeSigner", _signer);
+  function _addSigner(address _address) internal {
+    if (isOwner(_address) || isSigner(_address)) return;
+    signersMapping[_address] = true;
+    signers.push(_address);
+    emit SignerAdded(_address, block.timestamp);
+  }
+
+  function removeSigner(address _address) onlyOwner external {
+    _removeSigner(_address);
+  }
+
+  function removeSignerSigned(address _address, bytes sig) external {
+    bytes32 message = getRemoveSignerSignedMessage(_address);
     require(isOwnerSignature(message, sig));
-    emit SignerRemoved(_signer, block.timestamp);
+    _removeSigner(_address);
+  }
+
+  function getRemoveSignerSignedMessage(address _address) public view returns (bytes32) {
+    return keccak256(byte(0x19), byte(0), this, nonce, "removeSigner", _address);
+  }
+
+  function _removeSigner(address _address) internal {
+    if (isOwner(_address) || !isSigner(_address)) return;
+    for (uint8 i = 0; i < signers.length; i++) {
+      if (_address == signers[i]) {
+        // replace the hole with the last element
+        if (i != i - 1) {
+          signers[i] = signers[signers.length - 1];
+        }
+        delete signers[signers.length - 1];
+        signers.length--;
+        delete signersMapping[_address];
+
+        emit SignerRemoved(_address, block.timestamp);
+        return;
+      }
+    }
   }
 
 }

@@ -9,7 +9,7 @@ contract('MultiSigIdentity', (accounts) => {
     assert.deepEqual(result, [accounts[0]])
   })
 
-  describe('owners', () => {
+  describe('owners and signer management', () => {
     it('can add and remove other owners', async () => {
       const identity = await MultiSigIdentity.new(accounts[0])
 
@@ -143,6 +143,54 @@ contract('MultiSigIdentity', (accounts) => {
         assert(err.message.search('revert'));
       }
     })
+
+    it('can change signers', async () => {
+      const identity = await MultiSigIdentity.new(accounts[0])
+
+      let result = await identity.addSigner(accounts[1], { from: accounts[0] })
+      assert.equal(result.logs.length, 1);
+      assert.equal(result.logs[0].event, 'SignerAdded');
+
+      result = await identity.getOwners.call()
+      assert.deepEqual(result, [accounts[0]])
+
+      result = await identity.getSigners.call()
+      assert.deepEqual(result, [accounts[1]])
+
+      result = await identity.addSigner(accounts[2], { from: accounts[0] })
+      assert.equal(result.logs.length, 1);
+      assert.equal(result.logs[0].event, 'SignerAdded');
+
+      result = await identity.getOwners.call()
+      assert.deepEqual(result, [accounts[0]])
+
+      result = await identity.getSigners.call()
+      assert.deepEqual(result, [accounts[1], accounts[2]])
+
+      result = await identity.removeSigner(accounts[1], { from: accounts[0] })
+      assert.equal(result.logs.length, 1);
+      assert.equal(result.logs[0].event, 'SignerRemoved');
+
+      result = await identity.getOwners.call()
+      assert.deepEqual(result, [accounts[0]])
+
+      result = await identity.getSigners.call()
+      assert.deepEqual(result, [accounts[2]])
+
+      result = await identity.removeSigner(accounts[2], { from: accounts[0] })
+      assert.equal(result.logs.length, 1);
+      assert.equal(result.logs[0].event, 'SignerRemoved');
+
+      result = await identity.getOwners.call()
+      assert.deepEqual(result, [accounts[0]])
+
+      result = await identity.getSigners.call()
+      assert.deepEqual(result, [])
+    })
+
+    // TODO: Implement further tests relating to signers.
+    // TODO: Implement threshold configuration logic.
+    // TODO: Implement execute logic.
   })
 
   describe('everyone else', () => {
