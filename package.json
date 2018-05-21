@@ -10,6 +10,7 @@
     "watch": "watchman-make -p 'contracts/**/*.sol' 'test/**/*.js' --run 'yarn test'",
     "compile": "truffle compile",
     "migrate": "truffle migrate --reset --compile-all",
+    "migrate-rinkeby": "truffle migrate --reset --compile-all --network rinkeby",
     "lint": "solium -d contracts/",
     "fix": "solium --fix -d contracts/"
   },
@@ -17,6 +18,7 @@
     "eth-gas-reporter": "^0.1.2",
     "openzeppelin-solidity": "1.9.0",
     "solium": "^1.1.7",
-    "truffle": "^4.1.8"
+    "truffle": "^4.1.8",
+    "truffle-privatekey-provider": "^0.0.6"
   }
 }

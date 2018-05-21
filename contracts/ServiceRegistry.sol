@@ -13,11 +13,11 @@ contract ServiceRegistry is Ownable, Service {
     mapping(string => Service) services;
 
     function name() external view returns (string) {
-        return 'ServiceRegistry';
+        return "ServiceRegistry";
     }
 
     function serviceMetadata() external view returns (string) {
-        return 'https://cleargraph.com/docs#ServiceRegistry';
+        return "https://cleargraph.com/docs#ServiceRegistry";
     }
 
     function supportsInterface(bytes32 _interfaceHash) external view returns (bool) {
@@ -46,12 +46,13 @@ contract ServiceRegistry is Ownable, Service {
 
     function setService(string _key, Service _svc) onlyOwner external {
         services[_key] = _svc;
-        emit ServiceSet(_key, _svc, block.timestamp);
+        emit ServiceSet(_key, _svc, block.timestamp); // solium-disable-line security/no-block-members
     }
 
     function deleteService(string _key) onlyOwner external {
         delete services[_key];
-        emit ServiceDeleted(_key, block.timestamp);
+        emit ServiceDeleted(_key, block.timestamp); // solium-disable-line security/no-block-members
+
     }
 
 }

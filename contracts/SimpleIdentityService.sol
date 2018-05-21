@@ -1,3 +1,5 @@
+/* solium-disable operator-whitespace */
+
 pragma solidity ^0.4.23;
 
 import "./IdentityService.sol";
