@@ -32,7 +32,8 @@ contract MultiSigIdentity {
     }
 
     constructor(address _owner) public {
-        _addOwner(_owner);
+        ownersMapping[_owner] = true;
+        owners.push(_owner);
     }
 
     function () public payable { emit Received(msg.sender, msg.value); }

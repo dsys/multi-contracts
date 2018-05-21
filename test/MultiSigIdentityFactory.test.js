@@ -4,7 +4,7 @@ const MultiSigIdentity = artifacts.require('MultiSigIdentity');
 contract('MultiSigIdentityFactory', (accounts) => {
 
   it('creates new MultiSigIdentity contracts', async () => {
-    const factory = await MultiSigIdentityFactory.new()
+    const factory = await MultiSigIdentityFactory.deployed()
 
     let result = await factory.create(accounts[0])
     assert.equal(result.logs.length, 1)
