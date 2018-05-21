@@ -274,7 +274,7 @@ contract MultiSigIdentity {
     return keccak256(byte(0x19), byte(0), this, nonce, "executeCall", _to, _value, _data);
   }
 
-  // TODO: Move signature utils into npm module.
+  // TODO: Extract signature utils into npm module.
 
   function recoverKey (
     bytes32 _hash, 
@@ -284,7 +284,7 @@ contract MultiSigIdentity {
     uint8 v;
     bytes32 r;
     bytes32 s;
-    (v,r,s) = signatureSplit(_sigs, _pos);
+    (v, r, s) = signatureSplit(_sigs, _pos);
     return ecrecover(
       _hash,
       v,

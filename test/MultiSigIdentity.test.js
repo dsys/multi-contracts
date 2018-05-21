@@ -312,6 +312,16 @@ contract('MultiSigIdentity', (accounts) => {
       } catch (err) {
         assert(err.message.search('revert'))
       }
+
+      try {
+        msg = await identity.getExecuteCallSignedMessage.call(accounts[4], 0, "");
+        sig1 = web3.eth.sign(accounts[1], msg) + '00000000000000';
+        sigCombined = sig1 + sig1.substring(2)
+        result = await identity.executeCallSigned(accounts[4], 0, "", sigCombined, { from: accounts[4] })
+        assert.fail('expected throw not received');
+      } catch (err) {
+        assert(err.message.search('revert'))
+      }
     })
 
   })
