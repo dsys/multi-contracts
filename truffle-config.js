@@ -9,7 +9,7 @@ module.exports = {
       network_id: "*" // Match any network id
     },
     rinkeby: {
-      provider: () => new PrivateKeyProvider(process.env.INFURA_PRIVATE_KEY, `https://ropsten.infura.io/${process.env.INFURA_API_KEY}`),
+      provider: () => new PrivateKeyProvider(process.env.INFURA_PRIVATE_KEY, `https://rinkeby.infura.io/${process.env.INFURA_API_KEY}`),
       network_id: 4,
       gas: 4612388 // Gas limit used for deploys
     },
@@ -17,7 +17,7 @@ module.exports = {
       provider: () => new PrivateKeyProvider(process.env.INFURA_PRIVATE_KEY, `https://mainnet.infura.io/${process.env.INFURA_API_KEY}`),
       network_id: 0,
       gas: 4612388, // Gas limit used for deploys,
-      gasPrice: 9000000000
+      gasPrice: 9 * 1000000000
     }
   },
   mocha: {
