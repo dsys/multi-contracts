@@ -24,8 +24,8 @@ library KeyManagement {
 
     function keyHasPurpose(KeyManager storage self, bytes32 _key, uint256 _purpose) internal view returns (bool) {
         Key storage k = self.allKeys[_key];
-        uint256 l = k.purposes.length;
-        for (uint256 i; i < l; i++) {
+        uint256 len = k.purposes.length;
+        for (uint256 i; i < len; i++) {
             if (_purpose == k.purposes[i]) return true;
         }
         return false;
@@ -55,8 +55,8 @@ library KeyManagement {
         }
         
         bool purposeFound = false;
-        uint256 l = k.purposes.length;
-        for (uint256 i; i < l; i++) {
+        uint256 len = k.purposes.length;
+        for (uint256 i; i < len; i++) {
             if (k.purposes[i] == _purpose) {
                 purposeFound = true;
                 break;
@@ -74,17 +74,17 @@ library KeyManagement {
     function removeKey(KeyManager storage self, bytes32 _key, uint256 _purpose) internal returns (bool) {
         bytes32[] storage keys = self.keysByPurpose[_purpose];
 
-        uint256 l = keys.length;
-        if (l == 0) return false;
+        uint256 len = keys.length;
+        if (len == 0) return false;
 
         bool keyFound = false;
         uint256 i;
 
-        for (; i < l; i++) {
+        for (; i < len; i++) {
             if (keys[i] == _key) {
                 keyFound = true;
-                if (i != l - 1) {
-                    keys[i] = keys[l - 1];
+                if (i != len - 1) {
+                    keys[i] = keys[len - 1];
                 }
                 keys.length--;
                 break;
@@ -94,16 +94,16 @@ library KeyManagement {
         if (!keyFound) return false;
 
         Key storage k = self.allKeys[_key];
-        l = k.purposes.length;
-        if (l == 1) {
+        len = k.purposes.length;
+        if (len == 1) {
             delete self.allKeys[_key];
             return true;
         }
 
-        for (i = 0; i < l; i++) {
+        for (i = 0; i < len; i++) {
             if (k.purposes[i] == _purpose) {
-                if (i != l - 1) {
-                    k.purposes[i] = k.purposes[l - 1];
+                if (i != len - 1) {
+                    k.purposes[i] = k.purposes[len - 1];
                 }
                 k.purposes.length--;
                 return true;
