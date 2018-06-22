@@ -1,9 +1,9 @@
-const MultiSigIdentity = artifacts.require('MultiSigIdentity');
+const Identity = artifacts.require('Identity');
 
-contract('MultiSigIdentity', (accounts) => {
+contract('Identity', (accounts) => {
 
   it('has one owner when deployed', async () => {
-    const identity = await MultiSigIdentity.new(accounts[0])
+    const identity = await Identity.new(accounts[0])
 
     let result = await identity.getOwners.call()
     assert.deepEqual(result, [accounts[0]])
@@ -11,7 +11,7 @@ contract('MultiSigIdentity', (accounts) => {
 
   describe('owners and signer management', () => {
     it('can add and remove other owners', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.addOwner(accounts[1], { from: accounts[0] })
       assert.equal(result.logs.length, 1);
@@ -43,7 +43,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('cannot add itself multiple times', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.addOwner(accounts[0], { from: accounts[0] })
       assert.equal(result.logs.length, 0);
@@ -53,7 +53,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('cannot remove itself if they are the last owner', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       try {
         await identity.removeOwner(accounts[0], { from: accounts[0] })
@@ -64,7 +64,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('can remove itself if it is not the last owner', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.addOwner(accounts[1], { from: accounts[0] })
       assert.equal(result.logs.length, 1);
@@ -79,7 +79,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('can change owners using a signed message', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let msg = await identity.getAddOwnerSignedMessage.call(accounts[1]);
       let sig = web3.eth.sign(accounts[0], msg);
@@ -103,7 +103,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('cannot change owners with an invalid signature', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
       const sig = web3.eth.sign(accounts[0], web3.sha3('notarealmessage'));
       let result
 
@@ -123,7 +123,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('cannot change owners with a signature from a non-owner', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       const msg = await identity.getAddOwnerSignedMessage.call(accounts[1]);
       const sig = web3.eth.sign(accounts[1], web3.sha3('notarealmessage'));
@@ -145,7 +145,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('can change signers', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.addSigner(accounts[1], { from: accounts[0] })
       assert.equal(result.logs.length, 1);
@@ -189,7 +189,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('everyone else cannot change owners', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       try {
         result = await identity.addOwner(accounts[1], { from: accounts[1] })
@@ -210,14 +210,14 @@ contract('MultiSigIdentity', (accounts) => {
   describe('signer threshold configuration', () => {
 
     it('is 0 by default', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.getSignerThreshold.call()
       assert.equal(result, 0)
     })
 
     it('can be changed by owners', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.setSignerThreshold(2, { from: accounts[0] })
       assert.equal(result.logs.length, 1)
@@ -244,7 +244,7 @@ contract('MultiSigIdentity', (accounts) => {
   describe('execution', () => {
 
     it('allows owners to execute calls', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       let result = await identity.executeCall(accounts[1], 0, "", { from: accounts[0] })
       assert.equal(result.logs.length, 1)
@@ -252,7 +252,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('allows owners to execute calls using a signature', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       const msg = await identity.getExecuteCallSignedMessage.call(accounts[1], 0, "");
       const sig = web3.eth.sign(accounts[0], msg);
@@ -263,7 +263,7 @@ contract('MultiSigIdentity', (accounts) => {
     })
 
     it('allows signers to execute calls using a signature if they meet the threshold', async () => {
-      const identity = await MultiSigIdentity.new(accounts[0])
+      const identity = await Identity.new(accounts[0])
 
       await identity.setSignerThreshold(2)
       await identity.addSigner(accounts[1], { from: accounts[0] })

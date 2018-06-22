@@ -1,8 +1,9 @@
 pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/ECRecovery.sol";
+import "./KeyManagement.sol";
 
-contract MultiSigIdentity {
+contract Identity {
 
     uint8 constant SIGNATURE_LENGTH = 72;
 
