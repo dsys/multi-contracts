@@ -1,7 +1,7 @@
 pragma solidity ^0.4.23;
 
 import "openzeppelin-solidity/contracts/ECRecovery.sol";
-import "./KeyManagement.sol";
+// import "./KeyManagement.sol";
 
 contract Identity {
 

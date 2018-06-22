@@ -23,7 +23,7 @@ library KeyManagement {
     }
 
     function keyHasPurpose(KeyManager storage self, bytes32 _key, uint256 _purpose) internal view returns (bool) {
-        Key memory k = self.allKeys[_key];
+        Key storage k = self.allKeys[_key];
         uint256 l = k.purposes.length;
         for (uint256 i; i < l; i++) {
             if (_purpose == k.purposes[i]) return true;
@@ -31,21 +31,18 @@ library KeyManagement {
         return false;
     }
 
-    function getKeysByPurpose(KeyManager storage self, uint256 _purpose) public view returns (bytes32[]) {
+    function getKeysByPurpose(KeyManager storage self, uint256 _purpose) internal view returns (bytes32[]) {
         return self.keysByPurpose[_purpose];
     }
 
-    function addKey(KeyManager storage self, bytes32 _key, uint256 _purpose, uint256 _keyType) public returns (bool) {
-        uint256 i;
-        uint256[] memory purposes;
-
+    function addKey(KeyManager storage self, bytes32 _key, uint256 _purpose, uint256 _keyType) internal returns (bool) {
         Key storage k = self.allKeys[_key];
 
-        // create key
         if (k.key == 0) {
-            purposes = new uint256[](1);
+            uint256[] memory purposes = new uint256[](1);
             purposes[0] = _purpose;
             self.allKeys[_key] = Key(purposes, _keyType, _key);
+            self.keysByPurpose[_purpose].push(_key);
             return true;
         }
 
@@ -59,7 +56,7 @@ library KeyManagement {
         
         bool purposeFound = false;
         uint256 l = k.purposes.length;
-        for (; i < l; i++) {
+        for (uint256 i; i < l; i++) {
             if (k.purposes[i] == _purpose) {
                 purposeFound = true;
                 break;
@@ -67,19 +64,51 @@ library KeyManagement {
         }
 
         if (!purposeFound) {
-            purposes = new uint256[](l + 1);
-            for (i = 0; i < l; i++) {
-                purposes[i] = k.purposes[i];
-            }
-            purposes[l] = _purpose;
-            k.purposes = purposes;
+            k.purposes.push(_purpose);
+            self.keysByPurpose[_purpose].push(_key);
         }
 
         return true;
     }
 
-    function removeKey(KeyManager storage self, bytes32 _key, uint256 _purpose) returns (bool) {
+    function removeKey(KeyManager storage self, bytes32 _key, uint256 _purpose) internal returns (bool) {
+        bytes32[] storage keys = self.keysByPurpose[_purpose];
 
+        uint256 l = keys.length;
+        if (l == 0) return false;
+
+        bool keyFound = false;
+        uint256 i;
+
+        for (; i < l; i++) {
+            if (keys[i] == _key) {
+                keyFound = true;
+                if (i != l - 1) {
+                    keys[i] = keys[l - 1];
+                }
+                keys.length--;
+                break;
+            }
+        }
+
+        if (!keyFound) return false;
+
+        Key storage k = self.allKeys[_key];
+        l = k.purposes.length;
+        if (l == 1) {
+            delete self.allKeys[_key];
+            return true;
+        }
+
+        for (i = 0; i < l; i++) {
+            if (k.purposes[i] == _purpose) {
+                k.purposes[i] = k.purposes[l - 1];
+                k.purposes.length--;
+                return true;
+            }
+        }
+
+        assert(false);
     }
 
 }
