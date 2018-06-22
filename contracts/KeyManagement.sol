@@ -102,7 +102,9 @@ library KeyManagement {
 
         for (i = 0; i < l; i++) {
             if (k.purposes[i] == _purpose) {
-                k.purposes[i] = k.purposes[l - 1];
+                if (i != l - 1) {
+                    k.purposes[i] = k.purposes[l - 1];
+                }
                 k.purposes.length--;
                 return true;
             }
