@@ -4,7 +4,7 @@ const Identity = artifacts.require('Identity');
 contract('IdentityFactory', (accounts) => {
 
   it('creates new Identity contracts', async () => {
-    const factory = await IdentityFactory.deployed()
+    const factory = await IdentityFactory.new()
 
     let result = await factory.create(accounts[0])
     assert.equal(result.logs.length, 1)

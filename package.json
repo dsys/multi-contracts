@@ -1,8 +1,8 @@
 {
-  "name": "@cleargraphinc/contract",
+  "name": "@dsys/multi-contracts",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Alex Kern <alex@cleargraph.com>",
+  "author": "Alex Kern <alex@distributedsystems.com>",
   "license": "MIT",
   "scripts": {
     "start": "truffle develop",
