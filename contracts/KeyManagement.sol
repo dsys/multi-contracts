@@ -46,10 +46,6 @@ library KeyManagement {
             return true;
         }
 
-        if (k.key != _key) {
-            k.key = _key;
-        }
-
         if (k.keyType != _keyType) {
             k.keyType = _keyType;
         }
