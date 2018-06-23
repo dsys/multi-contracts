@@ -1,5 +1,6 @@
 const IdentityFactory = artifacts.require('IdentityFactory');
 const Identity = artifacts.require('Identity');
+const { addressToBytes32 } = require('./helpers')
 
 contract('IdentityFactory', (accounts) => {
 
@@ -11,8 +12,8 @@ contract('IdentityFactory', (accounts) => {
     assert.equal(result.logs[0].event, 'IdentityCreated')
 
     const identity = new Identity(result.logs[0].args._identity)
-    result = await identity.getOwners.call()
-    assert.deepEqual(result, [accounts[0]])
+    result = await identity.getKeysByPurpose(1)
+    assert.deepEqual(result, [addressToBytes32(accounts[0])])
   })
 
 })
