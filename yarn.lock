@@ -4093,7 +4093,7 @@ mkdirp@0.5.1, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0:
   dependencies:
     minimist "0.0.8"
 
-mocha@^3.4.2, mocha@^3.5.3:
+mocha@^3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-3.5.3.tgz#1e0480fe36d2da5858d1eb6acc38418b26eaa20d"
   dependencies:
@@ -4110,7 +4110,7 @@ mocha@^3.4.2, mocha@^3.5.3:
     mkdirp "0.5.1"
     supports-color "3.1.2"
 
-mocha@^4.0.1:
+mocha@^4.0.1, mocha@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/mocha/-/mocha-4.1.0.tgz#7d86cfbcf35cb829e2754c32e17355ec05338794"
   dependencies:
@@ -4416,7 +4416,7 @@ ora@^0.2.3:
     cli-spinners "^0.1.2"
     object-assign "^4.0.1"
 
-original-require@^1.0.1:
+original-require@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/original-require/-/original-require-1.0.1.tgz#0f130471584cd33511c5ec38c8d59213f9ac5e20"
 
@@ -5458,17 +5458,7 @@ sol-explore@1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.1.tgz#b59f073c69fe332560d5a10c32ba8ca7f2986cfb"
 
-solc@0.4.23:
-  version "0.4.23"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.23.tgz#54a0ff4015827b32fddb62c0a418b5247310a58e"
-  dependencies:
-    fs-extra "^0.30.0"
-    memorystream "^0.3.1"
-    require-from-string "^1.1.0"
-    semver "^5.3.0"
-    yargs "^4.7.1"
-
-solc@^0.4.2:
+solc@0.4.24, solc@^0.4.2:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/solc/-/solc-0.4.24.tgz#354f14b269b38cbaa82a47d1ff151723502b954e"
   dependencies:
@@ -5964,13 +5954,13 @@ truffle-privatekey-provider@^0.0.6:
     web3 "^0.20.1"
     web3-provider-engine "^8.4.0"
 
-truffle@^4.1.8:
-  version "4.1.8"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.8.tgz#b0b9175e0270145999567a3f0a2337c914a23a9c"
+truffle@^4.1.13:
+  version "4.1.13"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.13.tgz#bf27586988b4ff84563edfbf32b47941408a76ad"
   dependencies:
-    mocha "^3.4.2"
-    original-require "^1.0.1"
-    solc "0.4.23"
+    mocha "^4.1.0"
+    original-require "1.0.1"
+    solc "0.4.24"
 
 tslib@^1.9.0:
   version "1.9.3"
