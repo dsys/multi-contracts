@@ -7,13 +7,13 @@
   "scripts": {
     "start": "truffle develop",
     "test": "truffle test",
-    "watch": "nodemon -e js,sol --ignore build -x truffle test",
+    "watch": "nodemon -e js,sol --ignore build --watch contracts --watch test -x truffle -- test",
     "compile": "truffle compile",
     "migrate": "truffle migrate --reset --compile-all",
     "migrate-rinkeby": "truffle migrate --reset --compile-all --network rinkeby",
     "migrate-mainnet": "truffle migrate --compile-all --network mainnet",
-    "lint": "solium -d contracts/",
-    "fix": "solium --fix -d contracts/"
+    "lint": "eslint '**/*.js' && solium -d contracts/",
+    "fix": "eslint --fix '**/*.js' && solium --fix -d contracts/"
   },
   "dependencies": {
     "eth-gas-reporter": "^0.1.2",
@@ -23,5 +23,12 @@
     "solium": "^1.1.7",
     "truffle": "^4.1.8",
     "truffle-privatekey-provider": "^0.0.6"
+  },
+  "devDependencies": {
+    "eslint": "^5.0.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.1",
+    "husky": "^0.14.3",
+    "prettier": "^1.13.7"
   }
 }

@@ -1,6 +1,5 @@
 pragma solidity ^0.4.23;
 
-import "openzeppelin-solidity/contracts/ECRecovery.sol";
 import "./KeyManagement.sol";
 
 contract Identity {
@@ -18,8 +17,16 @@ contract Identity {
         manager.addKey(bytes32(_owner), 1, 1);
     }
 
+    function getKey(bytes32 _key) public view returns (uint256[], uint256, bytes32) {
+        return manager.getKey(_key);
+    }
+
     function getKeysByPurpose(uint256 _purpose) public view returns (bytes32[]) {
         return manager.getKeysByPurpose(_purpose);
+    }
+
+    function keyHasPurpose(bytes32 _key, uint256 _purpose) public view returns (bool) {
+        return manager.keyHasPurpose(_key, _purpose);
     }
 
     // function () public payable { emit Received(msg.sender, msg.value); }

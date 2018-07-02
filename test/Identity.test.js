@@ -1,16 +1,27 @@
-const Identity = artifacts.require('Identity');
-const { addressToBytes32 } = require('./helpers')
+const Identity = artifacts.require("Identity");
+const { addressToBytes32 } = require("./helpers");
 
-contract('Identity', (accounts) => {
-
+contract("Identity", accounts => {
   let result;
 
-  it('has one owner when deployed', async () => {
-    const identity = await Identity.new(accounts[0])
+  it("has one owner when deployed", async () => {
+    const identity = await Identity.new(accounts[0]);
 
-    result = await identity.getKeysByPurpose(1)
-    assert.deepEqual(result, [addressToBytes32(accounts[0])])
-  })
+    result = await identity.getKeysByPurpose(1);
+    assert.deepEqual(result, [addressToBytes32(accounts[0])]);
+
+    result = await identity.getKey(addressToBytes32(accounts[0]));
+    assert.equal(result[0].length, 1);
+    assert.equal(result[0][0].toNumber(), 1);
+    assert.equal(result[1].toNumber(), 1);
+    assert.equal(result[2], addressToBytes32(accounts[0]));
+
+    result = await identity.keyHasPurpose(addressToBytes32(accounts[0]), 1);
+    assert.isTrue(result);
+
+    result = await identity.keyHasPurpose(addressToBytes32(accounts[0]), 2);
+    assert.isFalse(result);
+  });
 
   // describe('owners and signer management', () => {
   //   it('can add and remove other owners', async () => {
@@ -326,5 +337,4 @@ contract('Identity', (accounts) => {
   //   })
 
   // })
-
-})
+});
