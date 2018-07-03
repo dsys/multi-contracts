@@ -4,17 +4,24 @@ import "./KeyManagement.sol";
 
 contract Identity {
 
-    uint256 constant MANAGEMENT = 1;
-    uint256 constant ACTION = 2;
-    uint256 constant CLAIM = 3;
-    uint256 constant ENCRYPTION = 4;
+    uint256 public constant MANAGEMENT_KEY = 1;
+    uint256 public constant ACTION_KEY = 2;
+    uint256 public constant CLAIM_KEY = 3;
+    uint256 public constant ENCRYPTION_KEY = 4;
+
+    uint256 public constant ECDSA = 1;
+    uint256 public constant RSA = 2;
 
     using KeyManagement for KeyManagement.KeyManager;
+
+    event KeyAdded(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
+    event KeyRemoved(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
+    event ExecutedSigned(bytes32 signHash, uint256 nonce, bool success);
 
     KeyManagement.KeyManager manager;
 
     constructor(address _owner) public {
-        manager.addKey(bytes32(_owner), 1, 1);
+        manager.addKey(bytes32(_owner), MANAGEMENT_KEY, ECDSA);
     }
 
     function getKey(bytes32 _key) public view returns (uint256[], uint256, bytes32) {
@@ -27,6 +34,76 @@ contract Identity {
 
     function keyHasPurpose(bytes32 _key, uint256 _purpose) public view returns (bool) {
         return manager.keyHasPurpose(_key, _purpose);
+    }
+
+    function addKey(bytes32 _key, uint256 _purpose, uint256 _keyType) public returns (bool success) {
+        if (isManagementAddress(msg.sender)) {
+            success = manager.addKey(_key, _purpose, _keyType);
+        }
+
+        if (success) {
+            emit KeyAdded(_key, _purpose, _keyType);
+        }
+    }
+
+    function removeKey(bytes32 _key, uint256 _purpose) public returns (bool success) {
+        if (isManagementAddress(msg.sender)) {
+            uint256 keyType;
+            (, keyType, ) = manager.getKey(_key);
+            success = manager.removeKey(_key, _purpose);
+        }
+
+        if (success) {
+            emit KeyRemoved(_key, _purpose, keyType);
+        }
+    }
+
+    function isManagementAddress(address _subject) public view returns (bool) {
+        return manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY);
+    }
+
+    function executeSigned(
+        address _to,
+        address _from,
+        uint256 _value,
+        bytes _data,
+        uint256 _nonce,
+        uint256 _gasPrice,
+        uint256 _gasLimit,
+        address _gasToken,
+        uint256 _operationType,
+        bytes _extraHash,
+        bytes _messageSignatures
+    ) public {
+        // TODO: Implement ERC 1077.
+    }
+
+    function gasEstimate(
+        address _to,
+        address _from,
+        uint256 _value,
+        bytes _data,
+        uint256 _nonce,
+        uint256 _gasPrice,
+        uint256 _gasLimit,
+        address _gasToken,
+        uint256 _operationType,
+        bytes _extraHash,
+        bytes _messageSignatures
+    ) public view returns (bool canExecute, uint gasCost) {
+        // TODO: Implement ERC 1077.
+    }
+
+    function lastNonce() public view returns (uint256 nonce) {
+        // TODO: Implement ERC 1077.
+    }
+
+    function lastTimestamp() public view returns (uint256 timestamp) {
+        // TODO: Implement ERC 1077.
+    }
+
+    function requiredSignatures(uint256 _keyType) public view returns (uint256 count) {
+        // TODO: Implement ERC 1077.
     }
 
     // function () public payable { emit Received(msg.sender, msg.value); }

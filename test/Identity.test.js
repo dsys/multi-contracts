@@ -23,6 +23,43 @@ contract("Identity", accounts => {
     assert.isFalse(result);
   });
 
+  describe("key management", () => {
+    it("owners can manage keys", async () => {
+      const identity = await Identity.new(accounts[0]);
+
+      result = await identity.addKey(addressToBytes32(accounts[1]), 1, 1);
+      assert.equal(result.logs.length, 1);
+      assert.equal(result.logs[0].event, "KeyAdded");
+
+      result = await identity.getKeysByPurpose(1);
+      assert.deepEqual(result, [
+        addressToBytes32(accounts[0]),
+        addressToBytes32(accounts[1])
+      ]);
+
+      result = await identity.removeKey(addressToBytes32(accounts[1]), 1);
+      assert.equal(result.logs.length, 1);
+      assert.equal(result.logs[0].event, "KeyRemoved");
+
+      result = await identity.getKeysByPurpose(1);
+      assert.deepEqual(result, [addressToBytes32(accounts[0])]);
+    });
+
+    it("non-owners cannot manage keys", async () => {
+      const identity = await Identity.new(accounts[0]);
+
+      result = await identity.addKey(addressToBytes32(accounts[1]), 1, 1, {
+        from: accounts[1]
+      });
+      assert.equal(result.logs.length, 0);
+
+      result = await identity.removeKey(addressToBytes32(accounts[1]), 1, {
+        from: accounts[1]
+      });
+      assert.equal(result.logs.length, 0);
+    });
+  });
+
   // describe('owners and signer management', () => {
   //   it('can add and remove other owners', async () => {
   //     const identity = await Identity.new(accounts[0])
