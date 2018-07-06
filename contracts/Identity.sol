@@ -12,17 +12,27 @@ contract Identity {
     uint256 public constant ECDSA = 1;
     uint256 public constant RSA = 2;
 
+    uint256 public constant OPERATION_CALL = 0;
+    uint256 public constant OPERATION_DELEGATECALL = 1;
+    uint256 public constant OPERATION_CREATE = 2;
+
     using KeyManagement for KeyManagement.KeyManager;
 
     event KeyAdded(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
     event KeyRemoved(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
+
     event ExecutedSigned(bytes32 signHash, uint256 nonce, bool success);
+    event Received(address indexed sender, uint256 value);
 
     KeyManagement.KeyManager manager;
+
+    uint256 nonce;
 
     constructor(address _owner) public {
         manager.addKey(bytes32(_owner), MANAGEMENT_KEY, ECDSA);
     }
+
+    function () public payable { emit Received(msg.sender, msg.value); }
 
     function getKey(bytes32 _key) public view returns (uint256[], uint256, bytes32) {
         return manager.getKey(_key);
@@ -62,6 +72,10 @@ contract Identity {
         return manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY);
     }
 
+    function isActionAddress(address _subject) public view returns (bool) {
+        return manager.keyHasPurpose(bytes32(_subject), ACTION_KEY);
+    }
+
     function executeSigned(
         address _to,
         address _from,
@@ -94,8 +108,8 @@ contract Identity {
         // TODO: Implement ERC 1077.
     }
 
-    function lastNonce() public view returns (uint256 nonce) {
-        // TODO: Implement ERC 1077.
+    function lastNonce() public view returns (uint256) {
+        return nonce;
     }
 
     function lastTimestamp() public view returns (uint256 timestamp) {
@@ -106,78 +120,30 @@ contract Identity {
         // TODO: Implement ERC 1077.
     }
 
-    // function () public payable { emit Received(msg.sender, msg.value); }
-
-    // Owner management
-    // ===========================================================================
-
-    // function getOwners() external view returns (address[]) {
-    //     return owners;
+    // function execute(address _to, uint256 _value, bytes _data) external returns (bool) {
+    //     if ((_to == address(this) && !isManagementAddress) && !isActionAddress(msg.sender)) return false;
+    //     return _executeCall(_to, _value, _data);
     // }
 
-    // function isOwner(address _address) public view returns (bool) {
-    //     return ownersMapping[_address];
+    // function executeCallSigned(address _to, uint256 _value, bytes _data, bytes _sig) external returns (bool) {
+    //     require(_to != address(this) && _to != address(0));
+    //     bytes32 message = getExecuteCallSignedMessage(_to, _value, _data);
+    //     require(meetsSignerThreshold(message, _sig));
+    //     return _executeCall(_to, _value, _data);
     // }
 
-    // function isOwnerSignature(bytes32 message, bytes sig) public view returns (bool) {
-    //     bytes32 hash = ECRecovery.toEthSignedMessageHash(message);
-    //     return isOwner(ECRecovery.recover(hash, sig));
-    // }
+    // function _executeCall(address _to, uint256 _value, bytes _data) internal returns (bool success) {
+    //     require(_to != address(this) && _to != address(0));
 
-    // function addOwner(address _address) onlyOwner external {
-    //     _addOwner(_address);
-    // }
+    //     // increment nonce to prevent reentrancy
+    //     nonce++;
 
-    // function addOwnerSigned(address _address, bytes sig) external {
-    //     bytes32 message = getAddOwnerSignedMessage(_address);
-    //     require(isOwnerSignature(message, sig));
-    //     _addOwner(_address);
-    // }
-
-    // function getAddOwnerSignedMessage(address _address) public view returns (bytes32) {
-    //     return keccak256(byte(0x19), byte(0), this, nonce, "addOwner", _address);
-    // }
-
-    // function _addOwner(address _address) internal {
-    //     if (isOwner(_address)) return;
-    //     ownersMapping[_address] = true;
-    //     owners.push(_address);
-    //     emit OwnerAdded(_address, block.timestamp); // solium-disable-line security/no-block-members
-    // }
-
-    // function removeOwner(address _address) onlyOwner external {
-    //     _removeOwner(_address);
-    // }
-
-    // function removeOwnerSigned(address _address, bytes sig) external {
-    //     bytes32 message = getRemoveOwnerSignedMessage(_address);
-    //     require(isOwnerSignature(message, sig));
-    //     _removeOwner(_address);
-    // }
-
-    // function getRemoveOwnerSignedMessage(address _address) public view returns (bytes32) {
-    //     return keccak256(byte(0x19), byte(0), this, nonce, "removeOwner", _address);
-    // }
-
-    // function _removeOwner(address _address) internal {
-    //     if (!isOwner(_address)) return;
-    //     for (uint8 i = 0; i < owners.length; i++) {
-    //         if (_address == owners[i]) {
-    //             // don't allow removal of the last owner
-    //             require(owners.length > 1);
-
-    //             // replace the hole with the last element
-    //             if (i != i - 1) {
-    //                 owners[i] = owners[owners.length - 1];
-    //             }
-    //             delete owners[owners.length - 1];
-    //             owners.length--;
-    //             delete ownersMapping[_address];
-
-    //             emit OwnerRemoved(_address, block.timestamp); // solium-disable-line security/no-block-members
-    //             return;
-    //         }
+    //     // solium-disable-next-line security/no-inline-assembly
+    //     assembly {
+    //         success := call(gas, _to, _value, add(_data, 0x20), mload(_data), 0, 0)
     //     }
+
+    //     emit CallExecuted(_to, _value, _data, block.timestamp); // solium-disable-line security/no-block-members
     // }
 
     // Signer management
