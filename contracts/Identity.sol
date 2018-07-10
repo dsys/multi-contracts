@@ -1,7 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "./KeyManagement.sol";
+import { KeyManagement } from "./KeyManagement.sol";
 
+/// @title KeyManagement
+/// @author Alex Kern <alex@distributedsystems.com>
 contract Identity {
 
     uint256 public constant MANAGEMENT_KEY = 1;
@@ -24,58 +26,182 @@ contract Identity {
     event ExecutedSigned(bytes32 signHash, uint256 nonce, bool success);
     event Received(address indexed sender, uint256 value);
 
-    KeyManagement.KeyManager manager;
+    /// @dev The struct that holds the identity's keys
+    KeyManagement.KeyManager internal manager;
 
-    uint256 nonce;
+    /// @dev The last used nonce
+    uint256 internal nonce;
 
+    /// @dev Creates a new identity
+    /// @param _owner The initial owner/management address of the newly created contract
     constructor(address _owner) public {
         manager.addKey(bytes32(_owner), MANAGEMENT_KEY, ECDSA);
     }
 
+    /// @dev Default function making the identity contract payable
     function () public payable { emit Received(msg.sender, msg.value); }
 
-    function getKey(bytes32 _key) public view returns (uint256[], uint256, bytes32) {
+    /// @dev Returns a key by the key's identifier
+    /// @param _key The key to retrieve
+    function getKey(
+        bytes32 _key
+    ) public view returns (uint256[], uint256, bytes32) {
         return manager.getKey(_key);
     }
 
-    function getKeysByPurpose(uint256 _purpose) public view returns (bytes32[]) {
+    /// @dev Returns all keys on the identity with a purpose
+    /// @param _purpose The purpose to check
+    function getKeysByPurpose(
+        uint256 _purpose
+    ) public view returns (bytes32[]) {
         return manager.getKeysByPurpose(_purpose);
     }
 
-    function keyHasPurpose(bytes32 _key, uint256 _purpose) public view returns (bool) {
+    /// @dev Returns whether a key has a purpose
+    /// @param _key The key to check
+    /// @param _purpose The purpose to check
+    function keyHasPurpose(
+        bytes32 _key,
+        uint256 _purpose
+    ) public view returns (bool) {
         return manager.keyHasPurpose(_key, _purpose);
     }
 
-    function addKey(bytes32 _key, uint256 _purpose, uint256 _keyType) public returns (bool success) {
-        if (isManagementAddress(msg.sender)) {
-            success = manager.addKey(_key, _purpose, _keyType);
-        }
-
-        if (success) {
-            emit KeyAdded(_key, _purpose, _keyType);
-        }
+    /// @dev Reverts if the caller is not a management address
+    modifier onlyManagement {
+        require(
+            isManagementAddress(msg.sender),
+            "Management address required"
+        );
+        _;
     }
 
-    function removeKey(bytes32 _key, uint256 _purpose) public returns (bool success) {
-        if (isManagementAddress(msg.sender)) {
-            uint256 keyType;
-            (, keyType, ) = manager.getKey(_key);
-            success = manager.removeKey(_key, _purpose);
-        }
-
-        if (success) {
-            emit KeyRemoved(_key, _purpose, keyType);
-        }
+    /// @dev Returns whether or not a subject is able to perform key management actions on behalf of the identity
+    /// @param _subject The subject to check
+    function isManagementAddress(
+        address _subject
+    ) public view returns (bool) {
+        return _subject == address(this) || manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY);
     }
 
-    function isManagementAddress(address _subject) public view returns (bool) {
-        return manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY);
+    /// @dev Returns whether or not a subject is able to perform actions on other contracts on behalf of the identity
+    /// @param _subject The subject to check
+    function isActionAddress(
+        address _subject
+    ) public view returns (bool) {
+        return (
+            _subject == address(this) ||
+            manager.keyHasPurpose(bytes32(_subject), ACTION_KEY) ||
+            manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY)
+        );
     }
 
-    function isActionAddress(address _subject) public view returns (bool) {
-        return manager.keyHasPurpose(bytes32(_subject), ACTION_KEY);
+    /// @dev Adds a key to the identity contract
+    /// @param _key The key to add
+    /// @param _purpose The purpose of the key to add
+    /// @param _keyType The key type of the key to add
+    /// @return success Whether or not the key was added
+    function addKey(
+        bytes32 _key,
+        uint256 _purpose,
+        uint256 _keyType
+    ) onlyManagement public returns (
+        bool success
+    ) {
+        success = manager.addKey(_key, _purpose, _keyType);
+        if (success) emit KeyAdded(_key, _purpose, _keyType);
     }
 
+    /// @dev Removes a key from the identity contract
+    /// @param _key The key to remove
+    /// @param _purpose The purpose of the key to remove
+    /// @return success Whether or not the key was removed
+    function removeKey(
+        bytes32 _key,
+        uint256 _purpose
+    ) onlyManagement public returns (
+        bool success
+    ) {
+        require(
+            _purpose != MANAGEMENT_KEY || manager.getKeysByPurpose(_purpose).length > 1,
+            'Last management key cannot remove itself'
+        );
+
+        uint256 keyType;
+        (, keyType, ) = manager.getKey(_key);
+        success = manager.removeKey(_key, _purpose);
+        if (success) emit KeyRemoved(_key, _purpose, keyType);
+    }
+
+    /// @dev Returns the last used nonce by the identity
+    function lastNonce() public view returns (uint256) {
+        return nonce;
+    }
+
+    /// @dev Verifies that the message hash and signatures are valid
+    /// @param _messageHash The message hash to verify
+    /// @param _messageHash The message signatures to verify
+    function verifyMessageHash(
+        bytes32 _messageHash,
+        bytes _messageSignatures
+    ) public {
+        require(true == true); // TODO
+    }
+
+    /// @dev Returns the message hash that must be signed to execute a transaction
+    /// @param _to The contract to the send the transaction to
+    /// @param _from The contract to the send the transaction from
+    /// @param _value The amount of ether to send in the transaction
+    /// @param _data The transaction data
+    /// @param _nonce The new nonce for the transaction
+    /// @param _gasPrice The gas price paid in the gas token
+    /// @param _gasLimit The maximum gas paid in the transaction
+    /// @param _gasToken The token used to pay for the transaction, or 0 for ether
+    /// @param _operationType The type of operation to use: 0 for call, 1 for delegatecall, 2 for create
+    /// @param _extraHash The extra data to hash as part of the transaction, used for forward-compatibility
+    function getMessageHash(
+        address _to,
+        address _from,
+        uint256 _value,
+        bytes _data,
+        uint256 _nonce,
+        uint256 _gasPrice,
+        uint256 _gasLimit,
+        address _gasToken,
+        uint256 _operationType,
+        bytes _extraHash
+    ) public pure returns (bytes32) {
+        return keccak256(
+            abi.encodePacked(
+                byte(0x19),
+                byte(0),
+                _from,
+                _to,
+                _value,
+                keccak256(_data),
+                _nonce,
+                _gasPrice,
+                _gasLimit,
+                _gasToken,
+                // _callPrefix, // FIXME: This is in ERC 1077 but isn't well-defined?
+                _operationType,
+                _extraHash
+            )
+        );
+    }
+
+    /// @dev Executes a signed transaction on behalf of the identity
+    /// @param _to The contract to the send the transaction to
+    /// @param _from The contract to the send the transaction from
+    /// @param _value The amount of ether to send in the transaction
+    /// @param _data The transaction data
+    /// @param _nonce The new nonce for the transaction
+    /// @param _gasPrice The gas price paid in the gas token
+    /// @param _gasLimit The maximum gas paid in the transaction
+    /// @param _gasToken The token used to pay for the transaction, or 0 for ether
+    /// @param _operationType The type of operation to use: 0 for call, 1 for delegatecall, 2 for create
+    /// @param _extraHash The extra data to hash as part of the transaction, used for forward-compatibility
+    /// @param _messageSignatures The message signatures that authorize the transaction
     function executeSigned(
         address _to,
         address _from,
@@ -88,10 +214,57 @@ contract Identity {
         uint256 _operationType,
         bytes _extraHash,
         bytes _messageSignatures
-    ) public {
+    ) public returns (bool success) {
+        bytes32 messageHash = getMessageHash(
+            _to,
+            _from,
+            _value,
+            _data,
+            _nonce,
+            _gasPrice,
+            _gasLimit,
+            _gasToken,
+            _operationType,
+            _extraHash
+        );
+
+        verifyMessageHash(
+            messageHash,
+            _messageSignatures
+        );
+
+        nonce++; // increment nonce to prevent reentrancy
+
+        _executeCall(_to, _value, _data);
+
         // TODO: Implement ERC 1077.
     }
 
+    function _executeCall(
+        address _to,
+        uint256 _value,
+        bytes _data
+    ) internal returns (bool success) {
+        // solium-disable-next-line security/no-inline-assembly
+        assembly {
+            success := call(gas, _to, _value, add(_data, 0x20), mload(_data), 0, 0)
+        }
+    }
+
+    /// @dev Estimates the amount of gas used by the transaction
+    /// @param _to The contract to the send the transaction to
+    /// @param _from The contract to the send the transaction from
+    /// @param _value The amount of ether to send in the transaction
+    /// @param _data The transaction data
+    /// @param _nonce The new nonce for the transaction
+    /// @param _gasPrice The gas price paid in the gas token
+    /// @param _gasLimit The maximum gas paid in the transaction
+    /// @param _gasToken The token used to pay for the transaction, or 0 for ether
+    /// @param _operationType The type of operation to use: 0 for call, 1 for delegatecall, 2 for create
+    /// @param _extraHash The extra data to hash as part of the transaction, used for forward-compatibility
+    /// @param _messageSignatures The message signatures that authorize the transaction
+    /// @return canExecute Whether or not the transaction would succeed
+    /// @return gasCost The amount of gas that would be used by the transaction
     function gasEstimate(
         address _to,
         address _from,
@@ -104,19 +277,10 @@ contract Identity {
         uint256 _operationType,
         bytes _extraHash,
         bytes _messageSignatures
-    ) public view returns (bool canExecute, uint gasCost) {
-        // TODO: Implement ERC 1077.
-    }
-
-    function lastNonce() public view returns (uint256) {
-        return nonce;
-    }
-
-    function lastTimestamp() public view returns (uint256 timestamp) {
-        // TODO: Implement ERC 1077.
-    }
-
-    function requiredSignatures(uint256 _keyType) public view returns (uint256 count) {
+    ) public view returns (
+        bool canExecute,
+        uint256 gasCost
+    ) {
         // TODO: Implement ERC 1077.
     }
 
@@ -148,14 +312,6 @@ contract Identity {
 
     // Signer management
     // ===========================================================================
-
-    // function getSigners() external view returns (address[]) {
-    //     return signers;
-    // }
-
-    // function isSigner(address _address) public view returns (bool) {
-    //     return signersMapping[_address];
-    // }
 
     // function isSignerSignature(bytes32 message, bytes sig) public view returns (bool) {
     //     bytes32 hash = ECRecovery.toEthSignedMessageHash(message);
