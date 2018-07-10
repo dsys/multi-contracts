@@ -252,10 +252,11 @@ contract Identity {
         );
 
         // TODO: Check for valid nonce/timestamp
+
         nonce++; // increment nonce to prevent reentrancy
 
-        if (_gasLimit == 0) _gasLimit = gasleft();
-        _execute(_to, _value, _data, _operationType, _gasLimit);
+        uint256 _execGasLimit = _gasLimit == 0 ? gasleft() : _gasLimit;
+        _execute(_to, _value, _data, _operationType, _execGasLimit);
 
         // TODO: Continue implementing ERC 1077.
     }
