@@ -83,7 +83,10 @@ contract Identity {
     function isManagementAddress(
         address _subject
     ) public view returns (bool) {
-        return _subject == address(this) || manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY);
+        return ( // solium-disable-line operator-whitespace
+            _subject == address(this) ||
+            manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY)
+        );
     }
 
     /// @dev Returns whether or not a subject is able to perform actions on other contracts on behalf of the identity
@@ -91,7 +94,7 @@ contract Identity {
     function isActionAddress(
         address _subject
     ) public view returns (bool) {
-        return (
+        return ( // solium-disable-line operator-whitespace
             _subject == address(this) ||
             manager.keyHasPurpose(bytes32(_subject), ACTION_KEY) ||
             manager.keyHasPurpose(bytes32(_subject), MANAGEMENT_KEY)
@@ -126,7 +129,7 @@ contract Identity {
     ) {
         require(
             _purpose != MANAGEMENT_KEY || manager.getKeysByPurpose(_purpose).length > 1,
-            'Last management key cannot remove itself'
+            "Last management key cannot remove itself"
         );
 
         uint256 keyType;
