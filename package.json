@@ -7,7 +7,7 @@
   "scripts": {
     "start": "truffle develop",
     "test": "truffle test",
-    "watch": "nodemon -e js,sol --ignore build --watch contracts --watch test -x truffle -- test",
+    "watch": "nodemon -e js,sol --ignore build --watch contracts --watch test -x 'truffle test || exit 1'",
     "compile": "truffle compile",
     "migrate": "truffle migrate --reset --compile-all",
     "migrate-rinkeby": "truffle migrate --reset --compile-all --network rinkeby",
@@ -16,7 +16,8 @@
     "fix": "eslint --fix '**/*.js' && solium --fix -d contracts/"
   },
   "dependencies": {
-    "openzeppelin-solidity": "1.9.0"
+    "openzeppelin-solidity": "1.9.0",
+    "solidity-sigutils": "^1.0.1"
   },
   "devDependencies": {
     "eslint": "^5.0.1",
