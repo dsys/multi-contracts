@@ -26,6 +26,7 @@ contract Identity {
     event KeyRemoved(bytes32 indexed key, uint256 indexed purpose, uint256 indexed keyType);
 
     event ExecutedSigned(bytes32 signHash, uint256 nonce, bool success);
+    event ContractCreated(address newContract);
     event Received(address indexed sender, uint256 value);
 
     /// @dev The struct that holds the identity's keys
@@ -144,15 +145,18 @@ contract Identity {
     }
 
     /// @dev Verifies that the message hash and signatures are valid
+    /// @param _to The contract that will be sent the message
     /// @param _messageHash The message hash to verify
-    /// @param _messageHash The message signatures to verify
+    /// @param _messageSignatures The message signatures to verify
     function verifyMessageHash(
+        address _to,
         bytes32 _messageHash,
         bytes _messageSignatures
     ) public {
         address[] memory addresses = _messageHash.recoverAddresses(_messageSignatures);
         for (uint256 i = 0; i < addresses.length; i++) {
             bytes32 keyId = bytes32(addresses[i]);
+            // TODO: Add check for action keys
             if (manager.keyHasPurpose(keyId, MANAGEMENT_KEY)) {
                 return;
             }
@@ -242,13 +246,16 @@ contract Identity {
         );
 
         verifyMessageHash(
+            _to,
             messageHash.toEthBytes32SignedMessageHash(),
             _messageSignatures
         );
 
+        // TODO: Check for valid nonce/timestamp
         nonce++; // increment nonce to prevent reentrancy
 
-        success = _executeCall(_to, _value, _data);
+        if (_gasLimit == 0) _gasLimit = gasleft();
+        _execute(_to, _value, _data, _operationType, _gasLimit);
 
         // TODO: Continue implementing ERC 1077.
     }
@@ -286,18 +293,72 @@ contract Identity {
         // TODO: Implement ERC 1077.
     }
 
+    /// @dev Executes an operation on another contract
+    /// @param _to The contract to call
+    /// @param _value The value to attach to the call
+    /// @param _data The data for the call
+    /// @param _operationType The operation type for the call
+    /// @param _gasLimit The gas limit to use for the call
+    function _execute(
+        address _to,
+        uint256 _value,
+        bytes _data,
+        uint256 _operationType,
+        uint256 _gasLimit
+    ) internal returns (bool success) {
+        if (_operationType == OPERATION_CALL) {
+            success = _executeCall(_to, _value, _data, _gasLimit);
+        } else if (_operationType == OPERATION_DELEGATECALL) {
+            success = _executeDelegateCall(_to, _data, _gasLimit);
+        } else if (_operationType == OPERATION_CREATE) {
+            address newContract = _executeCreate(_data);
+            success = newContract != 0;
+            if (success) emit ContractCreated(newContract);
+        } else {
+            revert("Unsupported operation type");
+        }
+    }
+
     /// @dev Executes a call to another contract
     /// @param _to The contract to call
     /// @param _value The value to attach to the call
     /// @param _data The data for the call
+    /// @param _gasLimit The gas limit to use for the call
     function _executeCall(
         address _to,
         uint256 _value,
-        bytes _data
+        bytes _data,
+        uint256 _gasLimit
     ) internal returns (bool success) {
         // solium-disable-next-line security/no-inline-assembly
         assembly {
-            success := call(gas, _to, _value, add(_data, 0x20), mload(_data), 0, 0)
+            success := call(_gasLimit, _to, _value, add(_data, 0x20), mload(_data), 0, 0)
+        }
+    }
+
+    /// @dev Executes a delegatecall to another contract
+    /// @param _to The contract to call
+    /// @param _data The data for the call
+    /// @param _gasLimit The gas limit to use for the call
+    function _executeDelegateCall(
+        address _to,
+        bytes _data,
+        uint256 _gasLimit
+    ) internal returns (bool success) {
+        // solium-disable-next-line security/no-inline-assembly
+        assembly {
+            success := delegatecall(_gasLimit, _to, add(_data, 0x20), mload(_data), 0, 0)
+        }
+    }
+
+    /// @dev Executes a create
+    /// @param _data The data for the call
+    function _executeCreate(
+        bytes _data
+    ) internal returns (address newContract) {
+        // solium-disable-next-line security/no-inline-assembly
+        assembly {
+            newContract := create(0, add(_data, 0x20), mload(_data))
         }
     }
 
